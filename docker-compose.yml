@@ -2,12 +2,25 @@ version: '3.1'
 
 services:
 
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "-A md5"
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
   notebook:
-#    image: jupyter/pyspark-notebook:latest
     build: .
     restart: always
     volumes:
       - ./data:/home/jovyan/data
       - ./notebooks:/home/jovyan/notebooks
+      - ./postgres:/home/jovyan/postgres
     ports:
       - 8888:8888
+    depends_on:
+      - db
